@@ -26,5 +26,7 @@ namespace WindowsFormsApp1.Properties
                 return defaultInstance;
             }
         }
+
+        public string ServerUrl { get; internal set; }
     }
 }
