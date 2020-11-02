@@ -58,13 +58,18 @@ namespace WindowsFormsApp1
             Properties.Settings.Default.ServerUrl = textBox1.Text;
             // force save
             Properties.Settings.Default.Save();
-            Console.WriteLine("Setting");
             
         }
 
         private void resetBtn_Click(object sender, EventArgs e)
         {
             textBox1.Text = Properties.Settings.Default.ServerUrl;
+        }
+
+        private void textBox1_MouseLeave(object sender, EventArgs e)
+        {
+            // save setting
+            Properties.Settings.Default.ServerUrl = textBox1.Text;
         }
     }
 }
