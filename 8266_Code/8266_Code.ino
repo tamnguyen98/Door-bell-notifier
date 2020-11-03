@@ -15,8 +15,8 @@ void handleNotFound();
 boolean bellrung = false;
 float timer = 0;
 float delayValue = 2; // 2 seconds to switch bellrung from true to false
-String wifiName = "WIFI NAME";
-String wifiPW = "WIFI PASSWORD";
+char* wifiName = "WIFI NAME";
+char* wifiPW = "WIFI PASS";
 
 
 const int inputPin = 16; //D0

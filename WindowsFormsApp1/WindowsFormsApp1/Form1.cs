@@ -15,12 +15,14 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        private static string serverURL = "";
+        private static Uri serverURL;
         private static bool successConnection = false;
+        private bool firstTimeUser = true;
 
         private Thread subThread;
 
-        public delegate void MyDelegate(string msg, Form_Alert.enmType type);
+        public delegate void AlertDelegate(string msg, Form_Alert.enmType type);
+        public delegate void ErrorDelegate(bool b);
 
         public Form1()
         {
@@ -46,13 +48,17 @@ namespace WindowsFormsApp1
         {
             // read setting
             string setting1 = (string)Settings.Default.ServerUrl;
-            //serverURL = setting1;
-            if (string.IsNullOrEmpty(setting1) && string.IsNullOrEmpty(serverURL))
-                textBox1.Text = serverURL;
-            else
+            //serverURL = setting1
+            if (string.IsNullOrEmpty(setting1))
+            {
+                Uri.TryCreate(setting1, UriKind.RelativeOrAbsolute, out serverURL);
                 textBox1.Text = setting1;
+                firstTimeUser = false;
+            }
+            else if (serverURL != null && string.IsNullOrEmpty(serverURL.AbsolutePath))
+                textBox1.Text = serverURL.AbsolutePath;
 
-            if (!string.IsNullOrEmpty(serverURL))
+            if (serverURL != null && !string.IsNullOrEmpty(serverURL.AbsolutePath))
             {
                 SpawnThread();
                 Console.WriteLine("Thread spawned");
@@ -89,19 +95,12 @@ namespace WindowsFormsApp1
             UpdateSettingDefault();
             // force save
             Properties.Settings.Default.Save();
-
-            Alert("Someone is at the door!", Form_Alert.enmType.Rung);
             
         }
 
         private void resetBtn_Click(object sender, EventArgs e)
         {
             textBox1.Text = Properties.Settings.Default.ServerUrl;
-        }
-
-        private void textBox1_MouseLeave(object sender, EventArgs e)
-        {
-            UpdateSettingDefault();
         }
 
         // Saves
@@ -111,10 +110,14 @@ namespace WindowsFormsApp1
             string textboxVal = textBox1.Text;
             if (!String.IsNullOrEmpty(textboxVal))
             {
-                Properties.Settings.Default.ServerUrl = textboxVal;
-                Console.WriteLine(textboxVal);
-                if (subThread == null)
-                    SpawnThread();
+                if (Uri.TryCreate(textboxVal, UriKind.RelativeOrAbsolute, out serverURL) == true)
+                {
+                    Properties.Settings.Default.ServerUrl = textboxVal;
+                    Console.WriteLine(textboxVal);
+                    successConnection = false;
+                    if (subThread == null)
+                        SpawnThread();
+                }
             }
         }
 
@@ -125,17 +128,24 @@ namespace WindowsFormsApp1
             frm.showAlert(msg, type);
         }
 
+        public void ShowURLError(bool b)
+        {
+            this.errorLabel.Visible = b;
+        }
+
 
         // function for thread
         public void ConnectTo()
         {
             // flag to prevent more than one notification per ring
             bool alerted = false;
+            ErrorDelegate erDel = new ErrorDelegate(ShowURLError);
+            AlertDelegate delInst = new AlertDelegate(Alert);
 
             using (var client = new HttpClient())
             {
                 Console.WriteLine("Starting connection.");
-                client.Timeout = TimeSpan.FromSeconds(2);
+                client.Timeout = TimeSpan.FromSeconds(3);
                 while (true)
                 {
                     try
@@ -146,10 +156,10 @@ namespace WindowsFormsApp1
 
                         if (response.IsSuccessStatusCode)
                         {
+                            this.BeginInvoke(erDel, false);
                             if (!successConnection)
                             {
                                 successConnection = true;
-                                MyDelegate delInst = new MyDelegate(Alert);
                                 this.BeginInvoke(delInst, "Connected to server.", Form_Alert.enmType.Success);
                                 Console.WriteLine("Connected");
                             }
@@ -161,7 +171,7 @@ namespace WindowsFormsApp1
                             if (rung == 1 && !alerted)
                             {
                                 alerted = true;
-                                MyDelegate delInst = new MyDelegate(Alert);
+                                //AlertDelegate delInst = new AlertDelegate(Alert);
                                 this.BeginInvoke(delInst, "Someone is at the door!", Form_Alert.enmType.Rung);
                             }
                             else if (rung == 0 && alerted)
@@ -169,12 +179,14 @@ namespace WindowsFormsApp1
                         }
                     }
                     // IF we lose connection to the server
-                    catch (System.AggregateException e)
+                    catch (Exception e)
                     {
-                        if (successConnection)
+                        this.BeginInvoke(erDel, true);
+                        if (successConnection || firstTimeUser)
                         {
+                            firstTimeUser = false;
                             Console.WriteLine("Disconnected");
-                            MyDelegate delInst = new MyDelegate(Alert);
+                            //AlertDelegate delInst = new AlertDelegate(Alert);
                             this.BeginInvoke(delInst, "Lost connection to server.", Form_Alert.enmType.Error);
                         }
                         successConnection = false;

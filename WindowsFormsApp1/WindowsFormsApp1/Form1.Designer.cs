@@ -35,6 +35,7 @@
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.UpdateBtn = new System.Windows.Forms.Button();
             this.resetBtn = new System.Windows.Forms.Button();
+            this.errorLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -52,7 +53,6 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(256, 20);
             this.textBox1.TabIndex = 1;
-            this.textBox1.MouseLeave += new System.EventHandler(this.textBox1_MouseLeave);
             // 
             // notifyIcon1
             // 
@@ -62,7 +62,7 @@
             // 
             // UpdateBtn
             // 
-            this.UpdateBtn.Location = new System.Drawing.Point(150, 70);
+            this.UpdateBtn.Location = new System.Drawing.Point(147, 91);
             this.UpdateBtn.Name = "UpdateBtn";
             this.UpdateBtn.Size = new System.Drawing.Size(75, 23);
             this.UpdateBtn.TabIndex = 2;
@@ -72,7 +72,7 @@
             // 
             // resetBtn
             // 
-            this.resetBtn.Location = new System.Drawing.Point(69, 70);
+            this.resetBtn.Location = new System.Drawing.Point(66, 91);
             this.resetBtn.Name = "resetBtn";
             this.resetBtn.Size = new System.Drawing.Size(75, 23);
             this.resetBtn.TabIndex = 3;
@@ -80,11 +80,23 @@
             this.resetBtn.UseVisualStyleBackColor = true;
             this.resetBtn.Click += new System.EventHandler(this.resetBtn_Click);
             // 
+            // errorLabel
+            // 
+            this.errorLabel.ForeColor = System.Drawing.Color.Red;
+            this.errorLabel.Location = new System.Drawing.Point(17, 53);
+            this.errorLabel.Name = "errorLabel";
+            this.errorLabel.Size = new System.Drawing.Size(255, 30);
+            this.errorLabel.TabIndex = 4;
+            this.errorLabel.Text = "There was a problem with the URL. Double check it and try again. E.g.  http://192" +
+    ".168.1.129/";
+            this.errorLabel.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(310, 116);
+            this.ClientSize = new System.Drawing.Size(291, 126);
+            this.Controls.Add(this.errorLabel);
             this.Controls.Add(this.resetBtn);
             this.Controls.Add(this.UpdateBtn);
             this.Controls.Add(this.textBox1);
@@ -105,6 +117,7 @@
         private System.Windows.Forms.NotifyIcon notifyIcon1;
         private System.Windows.Forms.Button UpdateBtn;
         private System.Windows.Forms.Button resetBtn;
+        private System.Windows.Forms.Label errorLabel;
     }
 }
 
