@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using WindowsFormsApp1.Properties;
 
 namespace WindowsFormsApp1
 {
@@ -35,6 +27,7 @@ namespace WindowsFormsApp1
             this.MaximizeBox = false;
             // Center position
             this.StartPosition = FormStartPosition.CenterScreen;
+
         }
 
         private void SpawnThread()
@@ -46,10 +39,12 @@ namespace WindowsFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Properties.Settings.Default.Upgrade();
+
             // read setting
-            string setting1 = (string)Settings.Default.ServerUrl;
-            //serverURL = setting1
-            if (string.IsNullOrEmpty(setting1))
+            string setting1 = Properties.Settings.Default.ServerUrl;
+
+            if (!string.IsNullOrEmpty(setting1))
             {
                 Uri.TryCreate(setting1, UriKind.RelativeOrAbsolute, out serverURL);
                 textBox1.Text = setting1;
@@ -61,7 +56,6 @@ namespace WindowsFormsApp1
             if (serverURL != null && !string.IsNullOrEmpty(serverURL.AbsolutePath))
             {
                 SpawnThread();
-                Console.WriteLine("Thread spawned");
             }
         }
 
@@ -80,6 +74,9 @@ namespace WindowsFormsApp1
             {
                 Hide();
                 notifyIcon1.Visible = true;
+                notifyIcon1.BalloonTipTitle = "Doorbell Notifications";
+                notifyIcon1.BalloonTipText = "I'll hide down here in the tray. Double click my (bell) icon if you want to update/close me!";
+                notifyIcon1.ShowBalloonTip(1000);
             }
         }
 
@@ -95,7 +92,8 @@ namespace WindowsFormsApp1
             UpdateSettingDefault();
             // force save
             Properties.Settings.Default.Save();
-            
+            Properties.Settings.Default.Reload();
+
         }
 
         private void resetBtn_Click(object sender, EventArgs e)
@@ -179,7 +177,7 @@ namespace WindowsFormsApp1
                         }
                     }
                     // IF we lose connection to the server
-                    catch (Exception e)
+                    catch
                     {
                         this.BeginInvoke(erDel, true);
                         if (successConnection || firstTimeUser)
