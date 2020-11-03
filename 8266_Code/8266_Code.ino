@@ -15,6 +15,9 @@ void handleNotFound();
 boolean bellrung = false;
 float timer = 0;
 float delayValue = 2; // 2 seconds to switch bellrung from true to false
+String wifiName = "WIFI NAME";
+String wifiPW = "WIFI PASSWORD";
+
 
 const int inputPin = 16; //D0
 
@@ -24,7 +27,7 @@ void setup(void){
   delay(10);
   Serial.println('\n');
 
-  wifiMulti.addAP("Not_Your_Internet", "2902NE145");   // add Wi-Fi networks you want to connect to
+  wifiMulti.addAP(wifiName, wifiPW);   // add Wi-Fi networks you want to connect to
 
   Serial.println("Connecting ...");
   int i = 0;
